@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>杂物抽屉 · 工具箱</title>
+    <meta
+      name="description"
+      content="纯前端工具箱：打开即用，自动记住你上次的用法，数据只留在自己的设备上。"
+    />
+    <meta name="theme-color" content="#f2f3f5" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0c0e11" media="(prefers-color-scheme: dark)" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="杂物抽屉" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon-180x180.png" />
+    <script>
+      // Set the theme before first paint so a dark install never flashes white.
+      try {
+        var t = localStorage.getItem('jd:theme')
+        if (t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme: dark)').matches))
+          document.documentElement.dataset.theme = 'dark'
+      } catch (e) {}
+    </script>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

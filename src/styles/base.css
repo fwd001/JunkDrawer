@@ -1,0 +1,250 @@
+/* :root:root — Vant re-declares its own defaults on :root inside lazily loaded
+   component CSS, so a plain :root block loses on source order. */
+:root:root {
+  --jd-bg: #f2f3f5;
+  --jd-surface: #ffffff;
+  --jd-surface-2: #f6f7f9;
+  --jd-ink: #101317;
+  --jd-ink-2: #525a64;
+  --jd-ink-3: #8b939e;
+  --jd-line: #e5e7ea;
+  --jd-accent: #2563eb;
+  --jd-accent-ink: #ffffff;
+  --jd-ok: #15803d;
+  --jd-warn: #b45309;
+  --jd-danger: #dc2626;
+  --jd-shadow-1: rgba(16, 19, 23, 0.06);
+  --jd-shadow-2: rgba(16, 19, 23, 0.16);
+  --jd-tint: rgba(37, 99, 235, 0.08);
+
+  --van-primary-color: var(--jd-accent);
+  --van-background: var(--jd-bg);
+  --van-background-2: var(--jd-surface);
+  --van-background-3: var(--jd-surface-2);
+  --van-text-color: var(--jd-ink);
+  --van-text-color-2: var(--jd-ink-3);
+  --van-border-color: var(--jd-line);
+  --van-danger-color: var(--jd-danger);
+  --van-radius-lg: 20px;
+  --van-radius-md: 14px;
+  --van-cell-vertical-padding: 13px;
+  --van-cell-horizontal-padding: 16px;
+  --van-cell-line-height: 22px;
+  --van-slider-bar-border-radius: 999px;
+  --van-slider-inactive-background: var(--jd-line);
+  --van-slider-active-background: var(--jd-accent);
+  --van-slider-button-width: 26px;
+  --van-slider-button-height: 26px;
+  --van-button-border-display: none;
+  --van-tabs-bottom-bar-color: var(--jd-accent);
+}
+
+:root:root[data-theme='dark'] {
+  --jd-bg: #0c0e11;
+  --jd-surface: #16191f;
+  --jd-surface-2: #1e222a;
+  --jd-ink: #edf0f4;
+  --jd-ink-2: #a3abb7;
+  --jd-ink-3: #757d89;
+  --jd-line: #272c35;
+  --jd-accent: #5b9cff;
+  --jd-accent-ink: #0a1220;
+  --jd-ok: #3ecf8e;
+  --jd-warn: #f0b429;
+  --jd-danger: #ff6b6b;
+  --jd-shadow-1: rgba(0, 0, 0, 0.5);
+  --jd-shadow-2: rgba(0, 0, 0, 0.55);
+  --jd-tint: rgba(91, 156, 255, 0.14);
+
+  --van-background: var(--jd-bg);
+  --van-background-2: var(--jd-surface);
+  --van-background-3: var(--jd-surface-2);
+  --van-gray-1: var(--jd-surface-2);
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body,
+#app {
+  height: 100%;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--jd-bg);
+  color: var(--jd-ink);
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, 'Helvetica Neue', 'PingFang SC',
+    'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  font-size: 16px;
+  line-height: 1.45;
+  overscroll-behavior: none;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+
+.rail-on {
+  background: var(--jd-tint);
+  color: var(--jd-accent);
+}
+
+/* Translucent top bar, the part that sells "native" on iOS and Android. */
+.blur-bar {
+  background: color-mix(in srgb, var(--jd-bg) 76%, transparent);
+  backdrop-filter: saturate(1.8) blur(20px);
+  -webkit-backdrop-filter: saturate(1.8) blur(20px);
+}
+
+.icon-btn {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  color: var(--jd-accent);
+  background: var(--jd-tint);
+  font-size: 19px;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  height: 24px;
+  padding: 0 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.pill-ok {
+  color: var(--jd-ok);
+  background: color-mix(in srgb, var(--jd-ok) 15%, transparent);
+}
+
+.pill-bad {
+  color: var(--jd-danger);
+  background: color-mix(in srgb, var(--jd-danger) 15%, transparent);
+}
+
+.pill-idle {
+  color: var(--jd-ink-3);
+  background: var(--jd-surface-2);
+}
+
+button {
+  font: inherit;
+  color: inherit;
+}
+
+/* Each route owns its own scroll area, like a native screen. */
+.page {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (min-width: 1024px) {
+  .num {
+    font-size: 46px;
+  }
+}
+
+/* Route transitions: mobile pushes/pops a screen, desktop cross-fades a pane. */
+.push-enter-active,
+.push-leave-active,
+.pop-enter-active,
+.pop-leave-active {
+  transition:
+    transform 340ms cubic-bezier(0.32, 0.72, 0.2, 1),
+    opacity 340ms cubic-bezier(0.32, 0.72, 0.2, 1);
+  will-change: transform;
+}
+
+.push-enter-from {
+  transform: translateX(28px);
+  opacity: 0;
+}
+
+.push-leave-to {
+  transform: translateX(-18px);
+  opacity: 0.35;
+}
+
+.pop-enter-from {
+  transform: translateX(-18px);
+  opacity: 0.35;
+}
+
+.pop-leave-to {
+  transform: translateX(28px);
+  opacity: 0;
+}
+
+.push-leave-active,
+.pop-enter-active {
+  z-index: 1;
+}
+
+.push-enter-active,
+.pop-leave-active {
+  z-index: 2;
+}
+
+/* Drag-back already moved the outgoing screen off-canvas, so only the incoming one animates. */
+.dismiss-enter-active {
+  transition:
+    transform 260ms cubic-bezier(0.2, 0.75, 0.25, 1),
+    opacity 200ms ease-out;
+  z-index: 1;
+}
+
+.dismiss-enter-from {
+  transform: translateX(-14%) scale(0.97);
+  opacity: 0;
+}
+
+.dismiss-leave-active {
+  z-index: 2;
+  pointer-events: none;
+}
+
+@media (min-width: 1024px) {
+  .push-enter-active,
+  .push-leave-active,
+  .pop-enter-active,
+  .pop-leave-active {
+    transition:
+      transform 200ms ease-out,
+      opacity 200ms ease-out;
+  }
+
+  .push-enter-from,
+  .pop-enter-from,
+  .push-leave-to,
+  .pop-leave-to {
+    transform: none;
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
