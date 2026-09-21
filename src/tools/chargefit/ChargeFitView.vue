@@ -126,15 +126,14 @@ const meta = computed(() => {
 const summary = computed(() => {
   const p = plan.value
   if (p.status === 'ready')
-    return `${when(p.finishMs, nowMs.value)} 充到 ${targetSoc.value}%，出发前放 ${duration(p.sitMin)}。`
+    return `${when(p.finishMs, nowMs.value)} 充到 ${targetSoc.value}%，比出发早 ${duration(p.sitMin)}`
   if (p.status === 'insufficient') {
-    if (p.late)
-      return `现在开始也只能充到 ${Math.round(p.arrivalSoc)}% 就得到出发时间了，换功率更大的充电设备或者晚点走。`
-    return `最大 ${p.currentA}A 也要 ${duration(p.minutes)}，最晚 ${when(p.neededStartMs, nowMs.value)} 就得开始充。`
+    if (p.late) return `现在开始最多充到 ${Math.round(p.arrivalSoc)}%，来不及`
+    return `${p.currentA}A 要 ${duration(p.minutes)}，最晚 ${when(p.neededStartMs, nowMs.value)} 开始`
   }
-  if (p.status === 'idle') return `当前电量已经到了 ${targetSoc.value}%，这次不用充。`
-  if (p.status === 'too-late') return `开始时间晚于必须充满的 ${when(p.deadlineMs, nowMs.value)}，把开始时间往前调。`
-  return '出发时间已经过了，往后调一天。'
+  if (p.status === 'idle') return `已经到 ${targetSoc.value}% 了，这次不用充`
+  if (p.status === 'too-late') return `开始时间晚于 ${when(p.deadlineMs, nowMs.value)}，往前调`
+  return '出发时间已经过了，往后调一天'
 })
 
 const suggestion = computed(() => {
@@ -206,7 +205,7 @@ function pickStartChip(kind: 'now' | 'dawn' | 'eave') {
           :overflow="plan.status === 'insufficient'"
         />
 
-        <p class="mt-12px min-h-38px text-13px leading-19px text-ink2">{{ summary }}</p>
+        <p class="mt-12px truncate text-13px leading-19px text-ink2 whitespace-nowrap">{{ summary }}</p>
 
         <div class="mt-10px min-h-32px">
           <button
@@ -216,7 +215,7 @@ function pickStartChip(kind: 'now' | 'dawn' | 'eave') {
             @click="setStart(new Date(suggestion.ms))"
           >
             <span class="text-[16px] text-warn i-lucide-clock" />
-            <span class="flex-1 text-13px text-ink2">{{ suggestion.text }}</span>
+            <span class="flex-1 min-w-0 truncate text-13px text-ink2 whitespace-nowrap">{{ suggestion.text }}</span>
             <span class="text-13px font-700 text-accent">{{ suggestion.label }}</span>
           </button>
         </div>
