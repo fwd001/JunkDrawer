@@ -29,6 +29,11 @@ export function dayLabel(date: Date | number, now = new Date()) {
   return `${d.getMonth() + 1}月${d.getDate()}日`
 }
 
+/** Clock time, prefixed with 今天/明天 only when it is not today — how people actually say it. */
+export function when(ts: number, now = Date.now()) {
+  return `${dayLabel(ts, new Date(now))} ${clock(ts)}`.replace('今天 ', '')
+}
+
 export function duration(min: number) {
   const h = Math.floor(min / 60)
   const m = Math.round(min % 60)

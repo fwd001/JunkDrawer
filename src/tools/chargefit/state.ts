@@ -5,7 +5,7 @@ import { AC_EFFICIENCY, planCharge } from './calc'
 import type { ChargePlan } from './calc'
 import { CAR_PRESETS, CHARGER_PRESETS, CHEMISTRIES, carOf, chemistryOf, chargerOf } from './presets'
 import type { Chemistry } from './presets'
-import { dayDiff, hhmm, minutesUntil, resolveDepart, resolveStart } from './depart'
+import { dayDiff, hhmm, minutesUntil, resolveStart, rollForward } from './depart'
 
 export const TOOL_ID = 'charge-fit'
 export const DEPART_HOURS = [6, 7, 8, 9, 10]
@@ -23,6 +23,14 @@ interface SavedPlan {
   start: number
   buffer: number
   at: number
+}
+
+/** The everyday case: leave work tomorrow morning. */
+function tomorrowMorning() {
+  const d = new Date()
+  d.setDate(d.getDate() + 1)
+  d.setHours(9, 0, 0, 0)
+  return d.getTime()
 }
 
 function same(a: SavedPlan | null, b: SavedPlan | null) {
@@ -50,8 +58,8 @@ export function useChargeFit() {
   const maxCurrentA = toolStorage(TOOL_ID, 'maxA', chargerOf('home-7').maxCurrentA)
   const stepA = toolStorage(TOOL_ID, 'step', 1)
   const targetSoc = toolStorage(TOOL_ID, 'target', chemistryOf('lfp').dailyTargetSoc)
-  const departHHMM = toolStorage(TOOL_ID, 'depart', '09:00')
-  const departDay = toolStorage(TOOL_ID, 'departDay', 1)
+  /** Absolute moment, so crossing midnight does not silently push the trip a day out. */
+  const departAt = toolStorage<number>(TOOL_ID, 'departAt', tomorrowMorning())
   const startMode = toolStorage<'now' | 'sched'>(TOOL_ID, 'startMode', 'sched')
   const startHHMM = toolStorage(TOOL_ID, 'start', '01:00')
   const startShift = toolStorage(TOOL_ID, 'startShift', 0)
@@ -63,7 +71,7 @@ export function useChargeFit() {
   const isCustomCapacity = computed(() => capacityKwh.value !== car.value.capacityKwh)
   const isCustomCurrent = computed(() => maxCurrentA.value !== charger.value.maxCurrentA)
 
-  const departDate = computed(() => resolveDepart(departHHMM.value, departDay.value, nowMs.value))
+  const departDate = computed(() => rollForward(departAt.value, nowMs.value))
   const departMs = computed(() => departDate.value.getTime())
   const remainingMin = computed(() => minutesUntil(departMs.value, nowMs.value))
 
@@ -144,8 +152,7 @@ export function useChargeFit() {
   }
 
   function setDepart(date: Date) {
-    departHHMM.value = hhmm(date)
-    departDay.value = Math.max(0, dayDiff(date.getTime(), nowMs.value))
+    departAt.value = rollForward(date.getTime(), nowMs.value).getTime()
   }
 
   function setStart(date: Date) {
@@ -201,8 +208,7 @@ export function useChargeFit() {
     maxCurrentA,
     stepA,
     targetSoc,
-    departHHMM,
-    departDay,
+    departAt,
     departDate,
     departMs,
     remainingMin,

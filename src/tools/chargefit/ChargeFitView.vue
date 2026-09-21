@@ -3,8 +3,8 @@ import { computed, onBeforeUnmount, ref } from 'vue'
 import OptionChips from '@/components/OptionChips.vue'
 import RangeSlider from '@/components/RangeSlider.vue'
 import ToolPage from '@/components/ToolPage.vue'
-import { clock, dayLabel, duration } from '@/core/format'
-import { DAY_MS, dayDiff, dayOptions, hhmm } from './depart'
+import { dayLabel, duration, when } from '@/core/format'
+import { DAY_MS, dayDiff, dayOptions, hhmm, startOfDay } from './depart'
 import {
   BUFFER_CHOICES,
   DEPART_HOURS,
@@ -125,14 +125,14 @@ const meta = computed(() => {
 const summary = computed(() => {
   const p = plan.value
   if (p.status === 'ready')
-    return `${clock(p.finishMs)} 充到 ${targetSoc.value}%，出发前放 ${duration(p.sitMin)}。`
+    return `${when(p.finishMs, nowMs.value)} 充到 ${targetSoc.value}%，出发前放 ${duration(p.sitMin)}。`
   if (p.status === 'insufficient') {
     if (p.late)
       return `现在开始也只能充到 ${Math.round(p.arrivalSoc)}% 就得到出发时间了，换功率更大的充电设备或者晚点走。`
-    return `最大 ${p.currentA}A 也要 ${duration(p.minutes)}，最晚 ${clock(p.neededStartMs)} 就得开始充。`
+    return `最大 ${p.currentA}A 也要 ${duration(p.minutes)}，最晚 ${when(p.neededStartMs, nowMs.value)} 就得开始充。`
   }
   if (p.status === 'idle') return `当前电量已经到了 ${targetSoc.value}%，这次不用充。`
-  if (p.status === 'too-late') return `开始时间晚于必须充满的 ${clock(p.deadlineMs)}，把开始时间往前调。`
+  if (p.status === 'too-late') return `开始时间晚于必须充满的 ${when(p.deadlineMs, nowMs.value)}，把开始时间往前调。`
   return '出发时间已经过了，往后调一天。'
 })
 
@@ -143,7 +143,7 @@ const suggestion = computed(() => {
   return {
     ms,
     text: later ? '不想满电久放，可以晚点开始' : '想赶上的话得提前开始',
-    label: `${clock(ms)} 开始`,
+    label: `${when(ms, nowMs.value)} 开始`,
   }
 })
 
@@ -152,18 +152,12 @@ const startDays = computed(() => [
   { label: '出发当天', ts: startOfDay(departMs.value) },
 ])
 
-function startOfDay(ts: number) {
-  const d = new Date(ts)
-  d.setHours(0, 0, 0, 0)
-  return d.getTime()
-}
-
 function isDepartHour(hour: number) {
   return hhmm(departDate.value) === `${String(hour).padStart(2, '0')}:00`
 }
 
 const startChipOn = computed(() => {
-  if (startMode.value === 'now') return 'now'
+  if (startMode.value === 'now' || startClamped.value) return 'now'
   if (startShift.value === 0 && startHHMM.value === '01:00') return 'dawn'
   if (startShift.value === -1 && startHHMM.value === '22:00') return 'eave'
   return 'custom'
@@ -207,6 +201,7 @@ function pickStartChip(kind: 'now' | 'dawn' | 'eave') {
           :finish-ms="finishMs"
           :depart-ms="departMs"
           :deadline-ms="deadlineMs"
+          :now-ms="nowMs"
           :overflow="plan.status === 'insufficient'"
         />
 
@@ -231,8 +226,8 @@ function pickStartChip(kind: 'now' | 'dawn' | 'eave') {
         >
           <span class="text-[15px] text-ink3 i-lucide-history" />
           <span class="flex-1">
-            上次：{{ restoreHint.a }}A，{{ clock(restoreHint.start) }} 开始，{{ dayLabel(restoreHint.depart) }}
-            {{ clock(restoreHint.depart) }} 出发
+            上次：{{ restoreHint.a }}A，{{ when(restoreHint.start, nowMs) }} 开始，{{ when(restoreHint.depart, nowMs) }}
+            出发
           </span>
           <span class="font-700 text-accent">还原</span>
         </button>
@@ -261,7 +256,7 @@ function pickStartChip(kind: 'now' | 'dawn' | 'eave') {
         <div class="flex items-baseline justify-between">
           <p class="label">出发时间</p>
           <p class="text-14px font-700 tabular-nums">
-            {{ dayLabel(departDate) }} {{ clock(departMs) }}
+            {{ when(departMs, nowMs) }}
             <span class="muted font-500">· 还有 {{ duration(remainingMin) }}</span>
           </p>
         </div>
@@ -305,8 +300,8 @@ function pickStartChip(kind: 'now' | 'dawn' | 'eave') {
           <div class="flex items-baseline justify-between">
             <p class="label">什么时候开始充</p>
             <p class="text-14px font-700 tabular-nums">
-              {{ startMode === 'now' ? '立即' : `${dayLabel(startMs)} ${clock(startMs)}` }}
-              <span v-if="startClamped" class="muted font-500">· 已过，改成立即</span>
+              {{ startMode === 'now' || startClamped ? '立即' : when(startMs, nowMs) }}
+              <span v-if="startClamped" class="muted font-500">· 原定时间已过</span>
             </p>
           </div>
           <div class="mt-11px flex flex-wrap gap-8px">
@@ -335,7 +330,7 @@ function pickStartChip(kind: 'now' | 'dawn' | 'eave') {
         <div class="mt-15px border-t-1px border-solid border-line pt-13px">
           <div class="flex items-baseline justify-between">
             <p class="label">要提前充满</p>
-            <p class="muted tabular-nums">{{ clock(deadlineMs) }} 前</p>
+            <p class="muted tabular-nums">{{ when(deadlineMs, nowMs) }} 前</p>
           </div>
           <OptionChips v-model="bufferMin" :options="bufferOptions" class="mt-10px" />
         </div>

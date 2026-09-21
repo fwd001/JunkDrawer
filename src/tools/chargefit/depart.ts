@@ -27,21 +27,14 @@ export function minutesUntil(toTs: number, fromTs: number) {
   return (toTs - fromTs) / MIN_MS
 }
 
-export function atTime(nowMs: number, daysOut: number, hour: number, minute = 0) {
-  const d = new Date(nowMs)
-  d.setDate(d.getDate() + daysOut)
-  d.setHours(hour, minute, 0, 0)
-  return d
-}
-
 /**
- * The saved habit is "which day, what time of day" — resolve it to an absolute
- * moment, skipping forward if that moment has already gone by.
+ * A saved departure is an absolute moment, not "N days out": at 00:30 the trip
+ * you configured yesterday afternoon is still *today*, and only once that
+ * moment passes does the habit roll to the same clock time tomorrow.
  */
-export function resolveDepart(time: string, daysOut: number, nowMs: number) {
-  const [hh, mm] = splitHHMM(time)
-  const d = atTime(nowMs, daysOut, hh, mm)
-  if (d.getTime() <= nowMs) d.setDate(d.getDate() + 1)
+export function rollForward(ts: number, nowMs: number) {
+  const d = new Date(ts)
+  while (d.getTime() <= nowMs) d.setDate(d.getDate() + 1)
   return d
 }
 
