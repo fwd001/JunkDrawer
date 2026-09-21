@@ -195,7 +195,8 @@ export function useChargeFit() {
     bufferMin.value = s.buffer
     setDepart(new Date(s.depart))
     setStart(new Date(s.start))
-    saved.value = null
+    // Keep the record: the row now describes the plan you are looking at, and
+    // clearing it would make the card jump.
   }
 
   return {
@@ -225,6 +226,7 @@ export function useChargeFit() {
     isCustomCurrent,
     plan,
     suggestedStartMs,
+    lastPlan: saved,
     restoreHint,
     commitSnapshot,
     restoreSnapshot,

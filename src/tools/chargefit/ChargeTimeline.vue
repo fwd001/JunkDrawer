@@ -46,7 +46,7 @@ const departLabel = computed(() => {
         title="要求在此前充满"
       />
     </div>
-    <div class="mt-7px flex justify-between gap-6px text-11px tabular-nums text-ink3">
+    <div class="mt-7px flex justify-between gap-6px text-11px tabular-nums whitespace-nowrap text-ink3">
       <span>{{ startLabel }}</span>
       <span class="text-accent">{{ finishLabel }}</span>
       <span>{{ departLabel }}</span>

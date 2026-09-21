@@ -43,6 +43,7 @@ const {
   isCustomCurrent,
   plan,
   suggestedStartMs,
+  lastPlan,
   restoreHint,
   commitSnapshot,
   restoreSnapshot,
@@ -192,7 +193,7 @@ function pickStartChip(kind: 'now' | 'dawn' | 'eave') {
           </div>
           <div class="pt-3px text-right">
             <span class="pill" :class="`pill-${badge.tone}`">{{ badge.text }}</span>
-            <p class="muted mt-9px tabular-nums">{{ meta }}</p>
+            <p class="muted mt-9px whitespace-nowrap tabular-nums">{{ meta }}</p>
           </div>
         </div>
 
@@ -205,32 +206,35 @@ function pickStartChip(kind: 'now' | 'dawn' | 'eave') {
           :overflow="plan.status === 'insufficient'"
         />
 
-        <p class="mt-12px text-13px leading-19px text-ink2">{{ summary }}</p>
+        <p class="mt-12px min-h-38px text-13px leading-19px text-ink2">{{ summary }}</p>
 
-        <button
-          v-if="suggestion"
-          type="button"
-          class="tap mt-10px flex w-full items-center gap-8px rounded-12px border-none bg-transparent px-2px py-6px text-left"
-          @click="setStart(new Date(suggestion.ms))"
-        >
-          <span class="text-[16px] text-warn i-lucide-clock" />
-          <span class="flex-1 text-13px text-ink2">{{ suggestion.text }}</span>
-          <span class="text-13px font-700 text-accent">{{ suggestion.label }}</span>
-        </button>
+        <div class="mt-10px min-h-32px">
+          <button
+            v-if="suggestion"
+            type="button"
+            class="tap flex w-full items-center gap-8px rounded-12px border-none bg-transparent px-2px py-6px text-left"
+            @click="setStart(new Date(suggestion.ms))"
+          >
+            <span class="text-[16px] text-warn i-lucide-clock" />
+            <span class="flex-1 text-13px text-ink2">{{ suggestion.text }}</span>
+            <span class="text-13px font-700 text-accent">{{ suggestion.label }}</span>
+          </button>
+        </div>
 
-        <button
-          v-if="restoreHint"
-          type="button"
-          class="tap mt-8px flex w-full items-center gap-8px rounded-12px border-none bg-raised px-12px py-9px text-left text-12px text-ink2"
-          @click="restoreSnapshot()"
-        >
+        <div v-if="lastPlan" class="mt-8px flex h-20px items-center gap-8px px-2px">
           <span class="text-[15px] text-ink3 i-lucide-history" />
-          <span class="flex-1">
-            上次：{{ restoreHint.a }}A，{{ when(restoreHint.start, nowMs) }} 开始，{{ when(restoreHint.depart, nowMs) }}
-            出发
+          <span class="flex-1 min-w-0 truncate text-12px text-ink3">
+            上次：{{ lastPlan.a }}A，{{ when(lastPlan.start, nowMs) }} 开始，{{ when(lastPlan.depart, nowMs) }} 出发
           </span>
-          <span class="font-700 text-accent">还原</span>
-        </button>
+          <button
+            v-if="restoreHint"
+            type="button"
+            class="tap shrink-0 border-none bg-transparent p-0 text-13px font-700 text-accent"
+            @click="restoreSnapshot()"
+          >
+            还原
+          </button>
+        </div>
       </section>
 
       <section class="card px-16px py-13px">
