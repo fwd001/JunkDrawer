@@ -2,29 +2,30 @@
 import { computed } from 'vue'
 import type { PickerOption } from 'vant'
 import { clock, duration } from '@/core/format'
-import { dayDiff } from './depart'
+import { startOfDay } from './depart'
 
 const open = defineModel<boolean>('open', { required: true })
 const at = defineModel<number>('at', { required: true })
-const props = defineProps<{ nowMs: number }>()
 
-const DAYS = [
-  { offset: 0, label: '今天' },
-  { offset: 1, label: '明天' },
-  { offset: 2, label: '后天' },
-]
+const props = defineProps<{
+  title: string
+  days: { label: string; ts: number }[]
+  nowMs: number
+}>()
 
 const selected = computed(() => new Date(at.value))
-const offset = computed(() => dayDiff(at.value, props.nowMs))
 const timeModel = computed(() => [
   String(selected.value.getHours()).padStart(2, '0'),
   String(selected.value.getMinutes()).padStart(2, '0'),
 ])
 const lead = computed(() => Math.max(0, (at.value - props.nowMs) / 60_000))
 
-function pickDay(day: number) {
-  const d = new Date(props.nowMs)
-  d.setDate(d.getDate() + day)
+function isDay(day: { ts: number }) {
+  return startOfDay(at.value) === day.ts
+}
+
+function pickDay(ts: number) {
+  const d = new Date(ts)
   d.setHours(selected.value.getHours(), selected.value.getMinutes(), 0, 0)
   at.value = d.getTime()
 }
@@ -45,17 +46,17 @@ function format(type: string, option: PickerOption) {
 <template>
   <van-popup v-model:show="open" position="bottom" round safe-area-inset-bottom>
     <div class="pb-6px">
-      <p class="px-16px pt-16px text-16px font-700">几点出发</p>
+      <p class="px-16px pt-16px text-16px font-700">{{ props.title }}</p>
       <p class="muted px-16px pt-2px">{{ clock(at) }} · 还有 {{ duration(lead) }}</p>
 
-      <div class="mb-4px mt-14px flex justify-center gap-8px px-16px">
+      <div class="mb-4px mt-14px flex flex-wrap justify-center gap-8px px-16px">
         <button
-          v-for="day in DAYS"
-          :key="day.offset"
+          v-for="day in props.days"
+          :key="day.label"
           type="button"
           class="chip"
-          :class="offset === day.offset ? 'chip-on' : 'chip-idle'"
-          @click="pickDay(day.offset)"
+          :class="isDay(day) ? 'chip-on' : 'chip-idle'"
+          @click="pickDay(day.ts)"
         >
           {{ day.label }}
         </button>

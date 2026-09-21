@@ -16,7 +16,6 @@ declare module 'vue' {
     VanCollapse: typeof import('vant/es')['Collapse']
     VanCollapseItem: typeof import('vant/es')['CollapseItem']
     VanPopup: typeof import('vant/es')['Popup']
-    VanSlider: typeof import('vant/es')['Slider']
     VanStepper: typeof import('vant/es')['Stepper']
     VanTimePicker: typeof import('vant/es')['TimePicker']
   }

@@ -139,6 +139,11 @@ p {
   background: color-mix(in srgb, var(--jd-danger) 15%, transparent);
 }
 
+.pill-warn {
+  color: var(--jd-warn);
+  background: color-mix(in srgb, var(--jd-warn) 16%, transparent);
+}
+
 .pill-idle {
   color: var(--jd-ink-3);
   background: var(--jd-surface-2);
